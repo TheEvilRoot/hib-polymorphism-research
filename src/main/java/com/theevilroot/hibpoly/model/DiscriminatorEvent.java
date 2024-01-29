@@ -5,14 +5,13 @@ import java.time.Instant;
 
 @Entity(name = "discriminator_events")
 @Table(name = "discriminator_events")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="event_type", discriminatorType = DiscriminatorType.INTEGER)
+@Inheritance(strategy = InheritanceType.JOINED)
 public class DiscriminatorEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "event_type", insertable=false, updatable=false)
+    @Column(name = "event_type")
     @Enumerated(value = EnumType.ORDINAL)
     private EventType eventType;
 

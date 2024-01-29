@@ -19,8 +19,8 @@ fun main() {
         put("hibernate.hikari.dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource")
 
         put("hibernate.hikari.maximumPoolSize", "64")
-        put("hibernate.show_sql", "false")
-        put("hibernate.format_sql", "false")
+        put("hibernate.show_sql", "true")
+        put("hibernate.format_sql", "true")
         put("hibernate.use_sql_comments", "false")
         put("hibernate.hikari.idleTimeout", "30000")
         put("hibernate.hikari.dataSource.url", "jdbc:postgresql://10.80.0.4:5432/postgres")

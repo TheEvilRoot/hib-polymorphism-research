@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
-@DiscriminatorValue("2")
+@Table(name = "discriminator_events_data")
 public class DiscriminatorDataEvent extends DiscriminatorEvent {
 
     @Column(name = "data_length")

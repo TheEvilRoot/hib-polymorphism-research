@@ -7,7 +7,7 @@ import javax.persistence.Table;
 import java.time.Instant;
 
 @Entity
-@DiscriminatorValue(value = "0")
+@Table(name = "discriminator_events_connect")
 public class DiscriminatorConnectEvent extends DiscriminatorEvent {
 
     @Column(name = "ip_address", length = 100)

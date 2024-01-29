@@ -7,7 +7,7 @@ import javax.persistence.Table;
 import java.time.Instant;
 
 @Entity
-@DiscriminatorValue("4")
+@Table(name = "discriminator_events_crash")
 public class DiscriminatorCrashEvent extends DiscriminatorEvent {
     @Column(name = "stacktrace", length = 4096)
     private String stackTrace;

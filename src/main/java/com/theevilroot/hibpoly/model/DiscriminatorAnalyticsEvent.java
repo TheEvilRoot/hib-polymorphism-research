@@ -7,7 +7,7 @@ import javax.persistence.Table;
 import java.time.Instant;
 
 @Entity
-@DiscriminatorValue("3")
+@Table(name = "discriminator_events_analytics")
 public class DiscriminatorAnalyticsEvent extends DiscriminatorEvent {
 
     @Column(name = "uptime")
