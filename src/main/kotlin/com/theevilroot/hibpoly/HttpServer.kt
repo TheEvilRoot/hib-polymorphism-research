@@ -106,6 +106,18 @@ data class DataEventInfoDto(
     val dataSha1: String
 ) : EventDto()
 
+@Serializable
+data class InstanceEventsRequest(
+    val instanceId: String
+)
+
+@Serializable
+data class TypeInstanceEventsRequest(
+    val instanceId: String,
+    val type: EventType
+)
+
+
 class HttpServer (private val sessionFactory: SessionFactory){
 
     private inline suspend fun <reified T> transactional(crossinline f: suspend (Session) -> T): T {
@@ -136,11 +148,33 @@ class HttpServer (private val sessionFactory: SessionFactory){
         }
         routing {
             route("api/events") {
-                get("instance") {
-                    val instanceId = call.request.queryParameters.getOrFail("instance_id")
+                post("type") {
+                    val request = call.receive<TypeInstanceEventsRequest>()
+                    val events = transactional {
+                        it.createQuery("from discriminator_events event where event.instanceId = :instanceId and event.eventType = :eventType order by create_date desc")
+                            .setParameter("instanceId", request.instanceId)
+                            .setParameter("eventType", request.type)
+                            .setMaxResults(100)
+                            .resultStream
+                            .map { it as DiscriminatorEvent }
+                            .map {
+                                when (it) {
+                                    is DiscriminatorCrashEvent -> CrashEventInfoDto(it.id, it.createDate.toEpochMilli(), it.stackTrace, it.module)
+                                    is DiscriminatorDataEvent -> DataEventInfoDto(it.id, it.createDate.toEpochMilli(), it.dataLength, it.dataSha1)
+                                    is DiscriminatorConnectEvent -> ConnectEventInfoDto(it.id, it.createDate.toEpochMilli(), it.ipAddress, it.isSuccess)
+                                    is DiscriminatorDisconnectEvent -> DisconnectEventInfoDto(it.id, it.createDate.toEpochMilli(), it.reason)
+                                    is DiscriminatorAnalyticsEvent -> AnalyticsEventInfoDto(it.id, it.createDate.toEpochMilli(), it.cpuLoad, it.ramAvailable, it.uptime)
+                                    else -> throw IllegalStateException("$it")
+                                }
+                            }.collect(Collectors.toList())
+                    }
+                    call.respond(events)
+                }
+                post("instance") {
+                    val request = call.receive<InstanceEventsRequest>()
                     val events = transactional {
                         it.createQuery("from discriminator_events event where event.instanceId = :instanceId order by create_date desc")
-                            .setParameter("instanceId", instanceId)
+                            .setParameter("instanceId", request.instanceId)
                             .setMaxResults(100)
                             .resultStream
                             .map { it as DiscriminatorEvent }

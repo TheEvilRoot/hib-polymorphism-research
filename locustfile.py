@@ -12,6 +12,7 @@ print(f'using seed {seed}')
 instances = [hexlify(rnd.randbytes(8)).decode() for x in range(160)]
 reasons = [hexlify(rnd.randbytes(256)).decode() for x in range(160)]
 modules = [hexlify(rnd.randbytes(4)).decode() for x in range(120)]
+event_types = ['EVENT_CONNECT', 'EVENT_DISCONNECT', 'EVENT_DATA', 'EVENT_ANALYTICS', 'EVENT_CRASH']
 
 
 def ip_address():
@@ -24,8 +25,16 @@ class EventsUser(HttpUser):
     @task
     def get_instance_events(self):
         instance_id = rnd.choice(instances)
-        response = self.client.get(f'/api/events/instance', params={'instance_id': instance_id})
+        response = self.client.post(f'/api/events/instance', json={'instanceId': instance_id})
         print(f'found {len(response.json())} events for instance {instance_id}')
+
+    @task
+    def get_instance_events_by_task(self):
+        instance_id = rnd.choice(instances)
+        event_type = rnd.choice(event_types)
+        response = self.client.post(f'/api/events/type', json={'instanceId': instance_id, 'type': event_type})
+        print(f'found {len(response.json())} events for instance {instance_id} type {event_type}')
+
 
     @task
     def connect_event(self):
